@@ -12,7 +12,7 @@ type Cache struct {
 	mu *sync.RWMutex
 }
 
-func NewCache() *Cache {
+func New() *Cache {
 	return &Cache{
 		m:  make(map[string][]byte),
 		mu: new(sync.RWMutex),
@@ -41,6 +41,15 @@ func (c *Cache) Get(key string) (data []byte, found bool) {
 		data, found = c.m[key]
 	})
 	return data, found
+}
+
+func (c *Cache) GetAllKeys() (keys []string) {
+	c.WithRLock(func() {
+		for key := range c.m {
+			keys = append(keys, key)
+		}
+	})
+	return keys
 }
 
 func (c *Cache) AddSet(elements []models.Order) {
